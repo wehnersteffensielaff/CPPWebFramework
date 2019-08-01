@@ -139,7 +139,15 @@ Session &Request::getSession()
         if(sessionId.isEmpty() || !sessions.contains(sessionId))
         {
             sessionId = QUuid::createUuid().toString().toLocal8Bit();
-            response->addCookie(QNetworkCookie(HTTP::SESSION_ID, sessionId));
+            QNetworkCookie Cookie;
+            Cookie.setName(HTTP::SESSION_ID);
+            Cookie.setValue(sessionId);
+            Cookie.setPath("/");
+            auto ConfigHasSslKey = configuration.getSslKeyFile().isEmpty();
+            auto ConfigHasSslCert = configuration.getSslCertFile().isEmpty();
+            bool usesHttps = ConfigHasSslCert || ConfigHasSslKey;
+            Cookie.setSecure(usesHttps);
+            response->addCookie(Cookie);
             session = new Session(sessionId, expiration);
             session->creationTime = currentTimeInt;            
             session->sessionExpirationTime = (currentTimeInt + expiration);
