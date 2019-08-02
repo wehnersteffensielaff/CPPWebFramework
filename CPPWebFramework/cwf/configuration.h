@@ -33,6 +33,7 @@ class CPPWEBFRAMEWORKSHARED_EXPORT Configuration
     int maxThread             = 100;
     QString sslKeyFile;
     QString sslCertFile;
+    QList<QString> SslIntermediateCertifactes;
     QString path;
     QString logFilePath;
     QString indexPage;
@@ -171,9 +172,11 @@ public:
      */
     inline QSsl::SslProtocol getSslProtocol() const noexcept { return sslProtocol; }    
     /**
-     * @brief Returns the sslOptionDisableEmptyFragments. It is defined false by default.
-     * @param bool : true if is enable otherwise returns false;
+     * @brief Returns a List of SslIntermediateCertificate FileNames.
+     * @param QList<QString> List of IntermediateCertificates that the server
+     *        may send to client so the client can validate the complete chain
      */
+    inline QList<QString> getSslIntermediateCertificateFileNames() const noexcept { return SslIntermediateCertifactes;}
 };
 
 CWF_END_NAMESPACE

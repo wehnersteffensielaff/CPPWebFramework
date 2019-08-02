@@ -8,7 +8,7 @@
 #include "configuration.h"
 #include "constants.h"
 #include <QDir>
-
+#include <iostream>
 CWF_BEGIN_NAMESPACE
 
 Configuration::Configuration(const QString &serverFilesPath)
@@ -103,6 +103,19 @@ QSsl::SslProtocol extractSslProtocol(QString value)
     return QSsl::TlsV1SslV3;
 }
 
+QList<QString> extractIntermediateCertificates(QSettings & settings) {
+    QList<QString> IntermediateCertificateChain;
+    int size = settings.beginReadArray("certchain");
+    std::cout << "certchainSize" << size << "\n";
+    for (int i = 0; i < size; ++i) {
+        settings.setArrayIndex(i);
+        auto CertificateName = settings.value("certificate").toString();
+
+        IntermediateCertificateChain.push_back(CertificateName);
+    }
+    settings.endArray();
+    return IntermediateCertificateChain;
+}
 
 void Configuration::configure()
 {
@@ -112,25 +125,33 @@ void Configuration::configure()
         QSettings settings(iniFile, QSettings::Format::IniFormat);
         settings.beginGroup("config");
         host.setAddress(settings.value("host").toString());
-        port                  = static_cast<quint16>(settings.value("port").toInt());
-        maxThread             = settings.value("maxThread").toInt();
-        cleanupInterval       = settings.value("cleanupInterval").toInt();
-        timeOut               = settings.value("timeOut").toInt();
-        sslKeyFile            = settings.value("sslKeyFile").toString();
-        sslCertFile           = settings.value("sslCertFile").toString();
-        sessionExpirationTime = settings.value("sessionExpirationTime").toInt();
-        maxUploadFile         = settings.value("maxUploadFile").toLongLong();
-        indexPage             = settings.value("indexPage").toString();
-        accessCPPWebIni       = settings.value("accessCPPWebIni").toBool();
-        accessServerPages     = settings.value("accessServerPages").toBool();
-        maxLogFile            = settings.value("maxLogFile").toLongLong();
-        sslPassPhrase         = settings.value("sslPassPhrase").toByteArray();
-        sslKeyAlgorithm       = extractSslKeyAlgorithm(settings.value("sslKeyAlgorithm").toString());
-        sslEncodingFormat     = extractSslEncodingFormat(settings.value("sslEncodingFormat").toString());
-        sslKeyType            = extractSslKeyType(settings.value("sslKeyType").toString());
-        sslPeerVerifyMode     = extractSslPeerVerifyMode(settings.value("sslPeerVerifyMode").toString());
-        sslProtocol           = extractSslProtocol(settings.value("sslProtocol").toString());
-        logFilePath           = path + "/config/log/CPPWebServer.log";
+        port                       = static_cast<quint16>(settings.value("port").toInt());
+        maxThread                  = settings.value("maxThread").toInt();
+        cleanupInterval            = settings.value("cleanupInterval").toInt();
+        timeOut                    = settings.value("timeOut").toInt();
+        sslKeyFile                 = settings.value("sslKeyFile").toString();
+        sslCertFile                = settings.value("sslCertFile").toString();
+        sessionExpirationTime      = settings.value("sessionExpirationTime").toInt();
+        maxUploadFile              = settings.value("maxUploadFile").toLongLong();
+        indexPage                  = settings.value("indexPage").toString();
+        accessCPPWebIni            = settings.value("accessCPPWebIni").toBool();
+        accessServerPages          = settings.value("accessServerPages").toBool();
+        maxLogFile                 = settings.value("maxLogFile").toLongLong();
+        sslPassPhrase              = settings.value("sslPassPhrase").toByteArray();
+        sslKeyAlgorithm            = extractSslKeyAlgorithm(settings.value("sslKeyAlgorithm").toString());
+        sslEncodingFormat          = extractSslEncodingFormat(settings.value("sslEncodingFormat").toString());
+        sslKeyType                 = extractSslKeyType(settings.value("sslKeyType").toString());
+        sslPeerVerifyMode          = extractSslPeerVerifyMode(settings.value("sslPeerVerifyMode").toString());
+        sslProtocol                = extractSslProtocol(settings.value("sslProtocol").toString());
+        SslIntermediateCertifactes = extractIntermediateCertificates(settings);
+        logFilePath                = path + "/config/log/CPPWebServer.log";
+
+        for (auto & Intermediate : SslIntermediateCertifactes) {
+            FileManager::removeFirstBar(Intermediate);
+            if (!Intermediate.isEmpty()) {
+                Intermediate           = path + "/" + Intermediate;
+            }
+        }
 
         FileManager::removeFirstBar(sslCertFile);
         FileManager::removeFirstBar(sslKeyFile);
