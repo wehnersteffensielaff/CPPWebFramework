@@ -106,12 +106,13 @@ QSsl::SslProtocol extractSslProtocol(QString value)
 QList<QString> extractIntermediateCertificates(QSettings & settings) {
     QList<QString> IntermediateCertificateChain;
     int size = settings.beginReadArray("certchain");
-    std::cout << "certchainSize" << size << "\n";
+    std::cout << "certchainSize " << size << "\n";
     for (int i = 0; i < size; ++i) {
         settings.setArrayIndex(i);
         auto CertificateName = settings.value("certificate").toString();
 
         IntermediateCertificateChain.push_back(CertificateName);
+        //std::cout << "CertificateConfig " << CertificateName.toStdString() << "\n";
     }
     settings.endArray();
     return IntermediateCertificateChain;
@@ -151,6 +152,7 @@ void Configuration::configure()
             if (!Intermediate.isEmpty()) {
                 Intermediate           = path + "/" + Intermediate;
             }
+            std::cout << "Certpath " << Intermediate.toStdString() << "\n";
         }
 
         FileManager::removeFirstBar(sslCertFile);

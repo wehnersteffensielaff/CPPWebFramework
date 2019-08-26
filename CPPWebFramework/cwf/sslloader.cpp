@@ -79,17 +79,18 @@ QSslConfiguration *SslLoader::getSslConfiguration() const
             QSslCertificate IntermediatecertificateSsl(InterMediateFileData,
                                                        configuration.getSslEncodingFormat());
 
-            std::cout << "Certname " << IntermediateCert.toStdString() << "\n";
-            std::cout << "Subject: ";
+            std::cout << "\tCertname " << IntermediateCert.toStdString() << "\n";
+            std::cout << "\tSubject: ";
             for (auto const & SubjectEntries : IntermediatecertificateSsl.subjectInfo(QSslCertificate::SubjectInfo::CommonName)) {
                 std::cout << SubjectEntries.toStdString() << "\t";
             }
             std::cout << "\n";
-            std::cout << "Issuer: ";
+            std::cout << "\tIssuer: ";
             for (auto const & IssuerEntries : IntermediatecertificateSsl.issuerInfo(QSslCertificate::SubjectInfo::CommonName)) {
                  std::cout << IssuerEntries.toStdString() << "\t";
             }
             std::cout << "\n";
+            std::cout << "\tSslVersion " << IntermediatecertificateSsl.version().toStdString() << "\n";
             if (okIntermediate) {
                 SslCertificateChain.push_back(IntermediatecertificateSsl);
             }
